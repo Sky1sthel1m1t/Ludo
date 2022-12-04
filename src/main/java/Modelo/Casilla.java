@@ -8,35 +8,52 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Casilla extends JLabel {
-    private List<Ficha> fichas;
+    private ArrayList<Ficha> fichas;
     private int numCasilla;
     private boolean especial;
 
     public Casilla(int numCasilla, boolean especial) {
         this.numCasilla = numCasilla;
         this.especial = especial;
-        if (especial){
-            fichas = new ArrayList<>();
-        } else {
-            fichas = new LinkedList<>();
-        }
+        this.fichas = new ArrayList<>();
         init1();
     }
 
-    private void init1(){
+    public Ficha getFichaAMover(String color) {
+        Ficha ficha = null;
+
+        for (int i = 0; i < fichas.size(); i++) {
+            if (fichas.get(i).getColor().equals(color)) {
+                ficha = fichas.remove(i);
+                break;
+            }
+        }
+
+        if (fichas.size() == 0){
+            this.setIcon(null);
+        } else {
+            for (Ficha f: fichas) {
+                this.setIcon(f.getIcon());
+            }
+        }
+
+
+        return ficha;
+    }
+
+    private void init1() {
         Border border = BorderFactory.createLineBorder(Color.BLACK);
 
-        this.setOpaque(true);
-        this.setText(numCasilla+"");
+        this.setText(numCasilla + "");
         this.setHorizontalAlignment(JLabel.CENTER);
         this.setBorder(border);
     }
 
-    public List<Ficha> getFichas() {
+    public ArrayList<Ficha> getFichas() {
         return fichas;
     }
 
-    public void setFichas(List<Ficha> fichas) {
+    public void setFichas(ArrayList<Ficha> fichas) {
         this.fichas = fichas;
     }
 

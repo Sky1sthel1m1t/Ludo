@@ -1,23 +1,34 @@
 package Vista;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Ventana extends JFrame {
     private Tablero tablero;
+    private PanelInformacion panelInformacion;
 
     public Ventana(){
-        tablero = new Tablero(this);
         init1();
-        this.setVisible(true);
+
     }
 
     private void init1(){
-        this.setLayout(null);
-        this.setSize(tablero.getSize());
-        this.setPreferredSize(this.getSize());
+        tablero = new Tablero(this);
+        panelInformacion = new PanelInformacion(this, tablero);
+
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        this.getContentPane().add(tablero);
+        this.add(tablero, BorderLayout.CENTER);
+        this.add(panelInformacion, BorderLayout.EAST);
+//        this.addMouseListener(tablero);
+
         this.pack();
+        this.setVisible(true);
+        this.setLocationRelativeTo(null);
+        this.setResizable(false);
+    }
+
+    public void actualizarPanelInfo(){
+        panelInformacion.actualizarDatos();
     }
 }
