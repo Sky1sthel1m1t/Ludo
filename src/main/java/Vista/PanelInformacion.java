@@ -1,5 +1,7 @@
 package Vista;
 
+import Modelo.Jugador;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Scanner;
@@ -7,17 +9,19 @@ import java.util.Scanner;
 public class PanelInformacion extends JPanel {
     private Frame frame;
     private Tablero tablero;
+    private Jugador jugador;
 
     private JLabel lbTurno = new JLabel();
     private JLabel lbDado = new JLabel();
     private JLabel lbColor = new JLabel();
-
+    private JLabel lbColorJugador = new JLabel();
 
     private JButton btnDado = new JButton("Girar dado");
 
-    public PanelInformacion(Frame frame, Tablero tablero) {
+    public PanelInformacion(Frame frame, Tablero tablero, Jugador jugador) {
         this.frame = frame;
         this.tablero = tablero;
+        this.jugador = jugador;
         init1();
     }
 
@@ -38,6 +42,10 @@ public class PanelInformacion extends JPanel {
         lbColor.setBounds(x,y,30,altura);
         lbColor.setOpaque(true);
         y += espacioY;
+        lbColorJugador.setBounds(x-(ancho/ 2), y,ancho, altura);
+        lbColorJugador.setText(jugador.getNombre() + " tu color es: " + jugador.getColor().toUpperCase());
+        lbColorJugador.setHorizontalAlignment(JLabel.CENTER);
+        y += espacioY;
         btnDado.setBounds(x - (ancho / 2),y,ancho,altura);
         y += espacioY;
         lbDado.setBounds(x - (ancho / 2),y,ancho,altura);
@@ -55,6 +63,7 @@ public class PanelInformacion extends JPanel {
         this.add(lbDado);
         this.add(lbTurno);
         this.add(btnDado);
+        this.add(lbColorJugador);
     }
 
     public void actualizarDatos(){

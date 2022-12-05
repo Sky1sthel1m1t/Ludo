@@ -52,13 +52,14 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
     private int numTurno;
     private String turnoColor;
     private int resultadoDado;
-    private Jugador jugador = new Jugador("David", "azul");
+    private Jugador jugador;
     private boolean hayGanador = false;
 
     private Thread hilo;
 
-    public Tablero(Ventana ventana) {
+    public Tablero(Ventana ventana, Jugador jugador) {
         this.ventana = ventana;
+        this.jugador = jugador;
         init1();
         elegirColorInicio();
     }
