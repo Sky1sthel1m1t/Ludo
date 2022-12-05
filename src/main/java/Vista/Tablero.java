@@ -34,6 +34,11 @@ public class Tablero extends JPanel implements MouseListener {
     private int inicioVerde = 28;
     private int inicioAmarillo = 41;
 
+    private int inicioZonaSeguraAzul = 53;
+    private int inicioZonaSeguraRojo = 58;
+    private int inicioZonaSeguraVerde = 63;
+    private int inicioZonaSeguraAmarillo = 68;
+
     private String[] colores = new String[]{"azul", "rojo", "verde", "amarillo"};
     private int numTurno;
     private String turnoColor;
@@ -253,8 +258,12 @@ public class Tablero extends JPanel implements MouseListener {
         int numCasillaFinal = numCasillaInicial + numPosicionesMover;
         ficha.aumentarMovimientos(numPosicionesMover);
 
-        if (numCasillaFinal > 52 && !ficha.getColor().equals("azul")) {
+        if (numCasillaFinal > 52) {
             numCasillaFinal -= 52;
+        }
+
+        if (ficha.getNumMovimientos() > 52){
+
         }
 
         Casilla casillaFinal = casillas.get(numCasillaFinal);
@@ -387,6 +396,25 @@ public class Tablero extends JPanel implements MouseListener {
         }
         return false;
     }
+
+    public int enviarARectaFinal(int num){
+        int resultado = 0;
+
+        switch (turnoColor){
+            case "rojo":
+                resultado = (inicioZonaSeguraRojo - 1) + num;
+            case "verde":
+                resultado = (inicioZonaSeguraVerde - 1) + num;
+            case "amarillo":
+                resultado = (inicioZonaSeguraAmarillo - 1) + num;
+            case "azul":
+                resultado = (inicioZonaSeguraAzul - 1) + num;
+        }
+
+         return resultado;
+    }
+
+    // Hacer un metodo que valide cuando una pieza llega al final y poner un numero en el color que llegó
 
     @Override
     public void mouseClicked(MouseEvent e) {
