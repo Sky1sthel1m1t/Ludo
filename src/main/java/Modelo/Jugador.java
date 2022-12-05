@@ -2,11 +2,12 @@ package Modelo;
 
 public class Jugador {
     private String nombre;
+    private String color;
     private boolean activo;
 
-    public Jugador(String nombre, boolean activo) {
+    public Jugador(String nombre, String color) {
         this.nombre = nombre;
-        this.activo = activo;
+        this.color = color;
     }
 
     public String getNombre() {
@@ -15,6 +16,14 @@ public class Jugador {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public boolean isActivo() {

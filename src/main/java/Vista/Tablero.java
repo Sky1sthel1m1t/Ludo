@@ -3,6 +3,7 @@ package Vista;
 import Modelo.Casilla;
 import Modelo.Dado;
 import Modelo.Ficha;
+import Modelo.Jugador;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Tablero extends JPanel implements MouseListener {
+public class Tablero extends JPanel implements MouseListener, Runnable {
     private Ventana ventana;
     private JLabel lbFondo = new JLabel();
     private JLabel lbFichasMetidasRojas = new JLabel("");
@@ -51,6 +52,7 @@ public class Tablero extends JPanel implements MouseListener {
     private int numTurno;
     private String turnoColor;
     private int resultadoDado;
+    private Jugador jugador;
 
     public Tablero(Ventana ventana) {
         this.ventana = ventana;
@@ -288,9 +290,10 @@ public class Tablero extends JPanel implements MouseListener {
         }
 
         if (ficha.getNumMovimientos() == 57) {
-            ficha.setPosicion(0);
+            ficha.setPosicion(100);
             aumentarPunto();
             actualizarFichasMetidas();
+            return;
         }
 
         Casilla casillaFinal = casillas.get(numCasillaFinal);
@@ -303,6 +306,14 @@ public class Tablero extends JPanel implements MouseListener {
 
         ficha.setPosicion(numCasillaFinal);
         casillaFinal.setIcon(ficha.getIcon());
+
+        if (resultadoDado == 6) {
+            resultadoDado = -1;
+        } else {
+            cambiarTurno();
+        }
+
+        ventana.actualizarPanelInfo();
     }
 
     private void validarCasillaFinal(Casilla casilla, Ficha ficha) {
@@ -358,6 +369,8 @@ public class Tablero extends JPanel implements MouseListener {
         ficha.setPosicion(inicio);
         casillas.get(inicio).getFichas().add(ficha);
         casillas.get(inicio).setIcon(ficha.getIcon());
+        resultadoDado = -1;
+        ventana.actualizarPanelInfo();
     }
 
     public void cambiarTurno() {
@@ -408,7 +421,7 @@ public class Tablero extends JPanel implements MouseListener {
         boolean puedeMover = false;
 
         for (Ficha f : fichas) {
-            if (f.getPosicion() != 0) {
+            if (f.getPosicion() != 0 && f.getPosicion() != 100) {
                 numFichasFuera++;
                 if (f.getNumMovimientos() >= 52) {
                     numFichasZonaSegura++;
@@ -484,6 +497,45 @@ public class Tablero extends JPanel implements MouseListener {
         }
     }
 
+    private void moverIA(){
+        Ficha[] fichas = getFichasAMover();
+        ArrayList<Ficha> fichasMovibles = new ArrayList<>();
+        Ficha fichaAMover;
+        boolean puedeSacar = resultadoDado == 6;
+
+        for (Ficha f:fichas) {
+            int numMovimientos = f.getNumMovimientos() + resultadoDado;
+
+            if (puedeSacar && f.getPosicion() != 100 && numMovimientos <= 57){
+                fichasMovibles.add(f);
+            } else if (f.getPosicion() != 0 && f.getPosicion() != 100 && numMovimientos <= 57) {
+                fichasMovibles.add(f);
+            }
+        }
+
+        int numFicha = (int) (Math.random() * fichasMovibles.size());
+        fichaAMover = fichasMovibles.get(numFicha);
+        int numCasillaFicha = fichaAMover.getPosicion();
+
+        if (fichaAMover.getPosicion() == 0){
+            sacarFichaCasa(fichaAMover);
+        } else {
+            Casilla casilla = casillas.get(numCasillaFicha);
+            fichaAMover = casilla.getFichaAMover(turnoColor, resultadoDado);
+            moverFicha(numCasillaFicha, fichaAMover, resultadoDado);
+        }
+    }
+
+    private Ficha[] getFichasAMover(){
+        return switch (turnoColor) {
+            case "verde" -> fichasVerdes;
+            case "rojo" -> fichasRojas;
+            case "azul" -> fichasAzules;
+            case "amarillo" -> fichasAmarillas;
+            default -> null;
+        };
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
         if (resultadoDado <= 0) {
@@ -497,8 +549,7 @@ public class Tablero extends JPanel implements MouseListener {
 
             if (fichaSeleccionada.getColor().equals(turnoColor) && resultadoDado == 6) {
                 sacarFichaCasa(fichaSeleccionada);
-                resultadoDado = -1;
-                ventana.actualizarPanelInfo();
+
             }
         }
 
@@ -513,12 +564,7 @@ public class Tablero extends JPanel implements MouseListener {
             }
 
             moverFicha(numCasilla, fichaSeleccionada, resultadoDado);
-            if (resultadoDado == 6) {
-                resultadoDado = -1;
-            } else {
-                cambiarTurno();
-            }
-            ventana.actualizarPanelInfo();
+
         }
 
     }
@@ -549,5 +595,16 @@ public class Tablero extends JPanel implements MouseListener {
 
     public int getResultadoDado() {
         return resultadoDado;
+    }
+
+    @Override
+    public void run() {
+        while (!turnoColor.equals(jugador.getColor())){
+            String turnoAntesGirarDado = turnoColor + "";
+            girarDado();
+            if (turnoAntesGirarDado.equals(turnoColor)){
+                moverIA();
+            }
+        }
     }
 }
