@@ -20,6 +20,10 @@ import java.util.List;
 public class Tablero extends JPanel implements MouseListener {
     private Ventana ventana;
     private JLabel lbFondo = new JLabel();
+    private JLabel lbFichasMetidasRojas = new JLabel("");
+    private JLabel lbFichasMetidasAmarillas = new JLabel("");
+    private JLabel lbFichasMetidasVerdes = new JLabel("");
+    private JLabel lbFichasMetidasAzules = new JLabel("");
     private int tamañoCasillas = 58;
 
     private Ficha[] fichasRojas = new Ficha[4];
@@ -33,11 +37,15 @@ public class Tablero extends JPanel implements MouseListener {
     private int inicioRojo = 15;
     private int inicioVerde = 28;
     private int inicioAmarillo = 41;
-
     private int inicioZonaSeguraAzul = 53;
     private int inicioZonaSeguraRojo = 58;
     private int inicioZonaSeguraVerde = 63;
     private int inicioZonaSeguraAmarillo = 68;
+
+    private int puntosAzul = 0;
+    private int puntosRojo = 0;
+    private int puntosVerde = 0;
+    private int puntosAmarillo = 0;
 
     private String[] colores = new String[]{"azul", "rojo", "verde", "amarillo"};
     private int numTurno;
@@ -75,6 +83,19 @@ public class Tablero extends JPanel implements MouseListener {
         posicionarCasillas();
         iniciarFichas();
 
+        lbFichasMetidasRojas.setBounds(361, 420, tamañoCasillas, tamañoCasillas);
+        lbFichasMetidasRojas.setHorizontalAlignment(JLabel.CENTER);
+        lbFichasMetidasAzules.setBounds(421, 482, tamañoCasillas, tamañoCasillas);
+        lbFichasMetidasAzules.setHorizontalAlignment(JLabel.CENTER);
+        lbFichasMetidasAmarillas.setBounds(482, 420, tamañoCasillas, tamañoCasillas);
+        lbFichasMetidasAmarillas.setHorizontalAlignment(JLabel.CENTER);
+        lbFichasMetidasVerdes.setBounds(421, 361, tamañoCasillas, tamañoCasillas);
+        lbFichasMetidasVerdes.setHorizontalAlignment(JLabel.CENTER);
+
+        this.add(lbFichasMetidasRojas);
+        this.add(lbFichasMetidasVerdes);
+        this.add(lbFichasMetidasAmarillas);
+        this.add(lbFichasMetidasAzules);
         this.add(lbFondo);
     }
 
@@ -266,6 +287,12 @@ public class Tablero extends JPanel implements MouseListener {
             numCasillaFinal = enviarARectaFinal(ficha.getNumMovimientos() - 51);
         }
 
+        if (ficha.getNumMovimientos() == 57) {
+            ficha.setPosicion(0);
+            aumentarPunto();
+            actualizarFichasMetidas();
+        }
+
         Casilla casillaFinal = casillas.get(numCasillaFinal);
 
         if (casillaFinal.isEspecial()) {
@@ -419,7 +446,43 @@ public class Tablero extends JPanel implements MouseListener {
         return resultado;
     }
 
-    // Hacer un metodo que valide cuando una pieza llega al final y poner un numero en el color que llegó
+    private void actualizarFichasMetidas() {
+        switch (turnoColor) {
+            case "verde" -> {
+                if (puntosVerde == 0) {
+                    break;
+                }
+                lbFichasMetidasVerdes.setText("" + puntosVerde);
+            }
+            case "rojo" -> {
+                if (puntosRojo == 0) {
+                    break;
+                }
+                lbFichasMetidasRojas.setText("" + puntosRojo);
+            }
+            case "amarillo" -> {
+                if (puntosAmarillo == 0) {
+                    break;
+                }
+                lbFichasMetidasAmarillas.setText("" + puntosAmarillo);
+            }
+            case "azul" -> {
+                if (puntosAzul == 0) {
+                    break;
+                }
+                lbFichasMetidasAzules.setText("" + puntosAzul);
+            }
+        }
+    }
+
+    private void aumentarPunto() {
+        switch (turnoColor) {
+            case "verde" -> puntosVerde++;
+            case "rojo" -> puntosRojo++;
+            case "amarillo" -> puntosAmarillo++;
+            case "azul" -> puntosAzul++;
+        }
+    }
 
     @Override
     public void mouseClicked(MouseEvent e) {
