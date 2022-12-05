@@ -262,8 +262,8 @@ public class Tablero extends JPanel implements MouseListener {
             numCasillaFinal -= 52;
         }
 
-        if (ficha.getNumMovimientos() > 52){
-
+        if (ficha.getNumMovimientos() > 51) {
+            numCasillaFinal = enviarARectaFinal(ficha.getNumMovimientos() - 51);
         }
 
         Casilla casillaFinal = casillas.get(numCasillaFinal);
@@ -293,12 +293,13 @@ public class Tablero extends JPanel implements MouseListener {
             }
 
             String color = fichas.get(0).getColor();
-            if (color.equals(ficha.getColor())){
+            if (color.equals(ficha.getColor())) {
                 fichas.add(ficha);
                 ficha.setPosicion(casilla.getNumCasilla());
             } else {
                 Ficha fichaComida = casilla.getFichas().remove(0);
                 fichaComida.setPosicion(0);
+                fichaComida.setNumMovimientos(0);
                 fichaComida.setVisible(true);
                 fichas.add(ficha);
                 resultadoDado = 6;
@@ -332,9 +333,9 @@ public class Tablero extends JPanel implements MouseListener {
         casillas.get(inicio).setIcon(ficha.getIcon());
     }
 
-    public void cambiarTurno(){
+    public void cambiarTurno() {
         numTurno++;
-        if (numTurno >= colores.length){
+        if (numTurno >= colores.length) {
             numTurno = 0;
         }
         turnoColor = colores[numTurno];
@@ -342,16 +343,16 @@ public class Tablero extends JPanel implements MouseListener {
         ventana.actualizarPanelInfo();
     }
 
-    private void elegirColorInicio(){
+    private void elegirColorInicio() {
         numTurno = (int) (Math.random() * colores.length);
         turnoColor = colores[numTurno];
         resultadoDado = -1;
     }
 
-    public void girarDado(){
+    public void girarDado() {
         resultadoDado = dado.getResultado();
-        if (resultadoDado != 6){
-            if (!validarMovimiento()){
+        if (resultadoDado != 6) {
+            if (!validarMovimiento(resultadoDado)) {
                 try {
                     ventana.actualizarPanelInfo();
                     Thread.sleep(1000);
@@ -363,62 +364,66 @@ public class Tablero extends JPanel implements MouseListener {
         }
     }
 
-    public boolean validarMovimiento(){
-        switch (turnoColor){
-            case "azul":
-                for (Ficha f: fichasAzules) {
-                    if (f.getPosicion() != 0){
-                        return true;
-                    }
-                }
-                break;
-            case "amarillo":
-                for (Ficha f: fichasAmarillas) {
-                    if (f.getPosicion() != 0){
-                        return true;
-                    }
-                }
-                break;
-            case "verde":
-                for (Ficha f: fichasVerdes) {
-                    if (f.getPosicion() != 0){
-                        return true;
-                    }
-                }
-                break;
-            case "rojo":
-                for (Ficha f: fichasRojas) {
-                    if (f.getPosicion() != 0){
-                        return true;
-                    }
-                }
-                break;
-        }
-        return false;
+    private boolean validarMovimiento(int num) {
+        return switch (turnoColor) {
+            case "azul" -> validarMovimiento(fichasAzules, num);
+            case "amarillo" -> validarMovimiento(fichasAmarillas, num);
+            case "verde" -> validarMovimiento(fichasVerdes, num);
+            case "rojo" -> validarMovimiento(fichasRojas, num);
+            default -> false;
+        };
     }
 
-    public int enviarARectaFinal(int num){
-        int resultado = 0;
+    private boolean validarMovimiento(Ficha[] fichas, int num) {
+        int numFichasFuera = 0;
+        int numFichasZonaSegura = 0;
+        ArrayList<Ficha> fichasZonaSegura = new ArrayList<>();
+        boolean puedeMover = false;
 
-        switch (turnoColor){
-            case "rojo":
-                resultado = (inicioZonaSeguraRojo - 1) + num;
-            case "verde":
-                resultado = (inicioZonaSeguraVerde - 1) + num;
-            case "amarillo":
-                resultado = (inicioZonaSeguraAmarillo - 1) + num;
-            case "azul":
-                resultado = (inicioZonaSeguraAzul - 1) + num;
+        for (Ficha f : fichas) {
+            if (f.getPosicion() != 0) {
+                numFichasFuera++;
+                if (f.getNumMovimientos() >= 52) {
+                    numFichasZonaSegura++;
+                    fichasZonaSegura.add(f);
+                }
+            }
+        }
+        if (numFichasFuera == 0) {
+            return false;
+        }
+        if (numFichasFuera == numFichasZonaSegura) {
+            for (Ficha f : fichasZonaSegura) {
+                if (f.getNumMovimientos() + num <= 57) {
+                    puedeMover = true;
+                    break;
+                }
+            }
+        } else {
+            puedeMover = true;
         }
 
-         return resultado;
+        return puedeMover;
+    }
+
+    private int enviarARectaFinal(int num) {
+
+        int resultado = switch (turnoColor) {
+            case "rojo" -> (inicioZonaSeguraRojo - 1) + num;
+            case "verde" -> (inicioZonaSeguraVerde - 1) + num;
+            case "amarillo" -> (inicioZonaSeguraAmarillo - 1) + num;
+            case "azul" -> (inicioZonaSeguraAzul - 1) + num;
+            default -> 0;
+        };
+
+        return resultado;
     }
 
     // Hacer un metodo que valide cuando una pieza llega al final y poner un numero en el color que llegó
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (resultadoDado <= 0){
+        if (resultadoDado <= 0) {
             JOptionPane.showMessageDialog(null, "Se debe girar el dado antes de mover " +
                     "alguna pieza");
             return;
@@ -427,7 +432,7 @@ public class Tablero extends JPanel implements MouseListener {
         if (e.getSource() instanceof Ficha) {
             Ficha fichaSeleccionada = (Ficha) e.getSource();
 
-            if (fichaSeleccionada.getColor().equals(turnoColor) && resultadoDado == 6){
+            if (fichaSeleccionada.getColor().equals(turnoColor) && resultadoDado == 6) {
                 sacarFichaCasa(fichaSeleccionada);
                 resultadoDado = -1;
                 ventana.actualizarPanelInfo();
@@ -438,14 +443,14 @@ public class Tablero extends JPanel implements MouseListener {
             Casilla casilla = (Casilla) e.getSource();
             int numCasilla = casilla.getNumCasilla();
 
-            Ficha fichaSeleccionada = casilla.getFichaAMover(turnoColor);
+            Ficha fichaSeleccionada = casilla.getFichaAMover(turnoColor, resultadoDado);
 
             if (fichaSeleccionada == null) {
                 return;
             }
 
             moverFicha(numCasilla, fichaSeleccionada, resultadoDado);
-            if (resultadoDado == 6){
+            if (resultadoDado == 6) {
                 resultadoDado = -1;
             } else {
                 cambiarTurno();

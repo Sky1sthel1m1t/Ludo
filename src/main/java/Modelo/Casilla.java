@@ -17,11 +17,12 @@ public class Casilla extends JLabel {
         init1();
     }
 
-    public Ficha getFichaAMover(String color) {
+    public Ficha getFichaAMover(String color, int num) {
         Ficha ficha = null;
 
         for (int i = 0; i < fichas.size(); i++) {
-            if (fichas.get(i).getColor().equals(color)) {
+            Ficha aux = fichas.get(i);
+            if (aux.getColor().equals(color) && (aux.getNumMovimientos() + num) <= 57) {
                 ficha = fichas.remove(i);
                 break;
             }
