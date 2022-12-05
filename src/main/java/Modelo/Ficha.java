@@ -69,4 +69,12 @@ public class Ficha extends JLabel {
     public void setPosicionInicial(Point posicionInicial) {
         this.posicionInicial = posicionInicial;
     }
+
+    @Override
+    public String toString() {
+        return "Ficha{" +
+                "color='" + color + '\'' +
+                ", posicion=" + posicion +
+                '}';
+    }
 }

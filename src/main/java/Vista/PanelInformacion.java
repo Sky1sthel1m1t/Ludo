@@ -79,7 +79,7 @@ public class PanelInformacion extends JPanel {
         }
     }
 
-    private void mostrarResultadoDado(){
+    public void mostrarResultadoDado(){
         StringBuilder sb = new StringBuilder("El resultado del dado es: ");
 
         if (tablero.getResultadoDado() <= 0){
@@ -89,7 +89,6 @@ public class PanelInformacion extends JPanel {
         }
 
         lbDado.setText(sb.toString());
-        repaint();
     }
 
 }

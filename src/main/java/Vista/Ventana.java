@@ -9,7 +9,6 @@ public class Ventana extends JFrame {
 
     public Ventana(){
         init1();
-
     }
 
     private void init1(){
@@ -20,7 +19,6 @@ public class Ventana extends JFrame {
 
         this.add(tablero, BorderLayout.CENTER);
         this.add(panelInformacion, BorderLayout.EAST);
-//        this.addMouseListener(tablero);
 
         this.pack();
         this.setVisible(true);
@@ -28,7 +26,15 @@ public class Ventana extends JFrame {
         this.setResizable(false);
     }
 
+    public void iniciarThread(){
+        tablero.iniciarThread();
+    }
+
     public void actualizarPanelInfo(){
         panelInformacion.actualizarDatos();
+    }
+
+    public void mostrarResultado(){
+        panelInformacion.mostrarResultadoDado();
     }
 }

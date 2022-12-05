@@ -52,7 +52,10 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
     private int numTurno;
     private String turnoColor;
     private int resultadoDado;
-    private Jugador jugador;
+    private Jugador jugador = new Jugador("David", "azul");
+    private boolean hayGanador = false;
+
+    private Thread hilo;
 
     public Tablero(Ventana ventana) {
         this.ventana = ventana;
@@ -60,7 +63,7 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
         elegirColorInicio();
     }
 
-    public void init1() {
+    private void init1() {
         Dimension d = new Dimension(900, 900);
         this.setLayout(null);
         this.setSize(d);
@@ -391,15 +394,22 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
 
     public void girarDado() {
         resultadoDado = dado.getResultado();
+        ventana.mostrarResultado();
         if (resultadoDado != 6) {
             if (!validarMovimiento(resultadoDado)) {
                 try {
-                    ventana.actualizarPanelInfo();
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
                 cambiarTurno();
+//                if (!jugador.getColor().equals(turnoColor) && !hilo.isAlive()){
+//                    try {
+//                        hilo.start();
+//                    } catch (Exception e){
+//                        System.out.println(e.getMessage());
+//                    }
+//                }
             }
         }
     }
@@ -519,10 +529,13 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
 
         if (fichaAMover.getPosicion() == 0){
             sacarFichaCasa(fichaAMover);
+            System.out.println("Se esta sacando la ficha"+fichaAMover);
         } else {
+            int numMovimientos = resultadoDado;
             Casilla casilla = casillas.get(numCasillaFicha);
             fichaAMover = casilla.getFichaAMover(turnoColor, resultadoDado);
             moverFicha(numCasillaFicha, fichaAMover, resultadoDado);
+            System.out.println("Se movio la ficha "+fichaAMover + " desde la casilla " + numCasillaFicha + ", se movio" + numMovimientos);
         }
     }
 
@@ -536,8 +549,38 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
         };
     }
 
+    private void turnoIA(){
+        while (!turnoColor.equals(jugador.getColor())){
+            System.out.println(turnoColor);
+            String turnoAntesGirarDado = turnoColor + "";
+            girarDado();
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if (turnoAntesGirarDado.equals(turnoColor)){
+                moverIA();
+            }
+        }
+    }
+
+    public void iniciarThread(){
+        hilo = new Thread(this);
+        hilo.start();
+    }
+
+    private boolean esTurnoJugador(){
+        return jugador.getColor().equals(turnoColor);
+    }
+
     @Override
     public void mouseClicked(MouseEvent e) {
+
+        if (!esTurnoJugador()){
+            return;
+        }
+
         if (resultadoDado <= 0) {
             JOptionPane.showMessageDialog(null, "Se debe girar el dado antes de mover " +
                     "alguna pieza");
@@ -549,7 +592,6 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
 
             if (fichaSeleccionada.getColor().equals(turnoColor) && resultadoDado == 6) {
                 sacarFichaCasa(fichaSeleccionada);
-
             }
         }
 
@@ -565,8 +607,10 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
 
             moverFicha(numCasilla, fichaSeleccionada, resultadoDado);
 
+//            if (!jugador.getColor().equals(turnoColor)){
+//                hilo.start();
+//            }
         }
-
     }
 
     @Override
@@ -599,11 +643,12 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
 
     @Override
     public void run() {
-        while (!turnoColor.equals(jugador.getColor())){
-            String turnoAntesGirarDado = turnoColor + "";
-            girarDado();
-            if (turnoAntesGirarDado.equals(turnoColor)){
-                moverIA();
+        while (!hayGanador){
+            turnoIA();
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }
     }
