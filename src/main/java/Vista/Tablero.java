@@ -396,7 +396,9 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
     public void girarDado() {
         resultadoDado = dado.getResultado();
         ventana.mostrarResultado();
-        if (resultadoDado != 6) {
+        if (resultadoDado == 6 || resultadoDado == 3) {
+
+        } else {
             if (!validarMovimiento(resultadoDado)) {
                 try {
                     Thread.sleep(1000);
@@ -512,7 +514,7 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
         Ficha[] fichas = getFichasAMover();
         ArrayList<Ficha> fichasMovibles = new ArrayList<>();
         Ficha fichaAMover;
-        boolean puedeSacar = resultadoDado == 6;
+        boolean puedeSacar = resultadoDado == 6 ||  resultadoDado == 3;
 
         for (Ficha f:fichas) {
             int numMovimientos = f.getNumMovimientos() + resultadoDado;
@@ -591,7 +593,7 @@ public class Tablero extends JPanel implements MouseListener, Runnable {
         if (e.getSource() instanceof Ficha) {
             Ficha fichaSeleccionada = (Ficha) e.getSource();
 
-            if (fichaSeleccionada.getColor().equals(turnoColor) && resultadoDado == 6) {
+            if (fichaSeleccionada.getColor().equals(turnoColor) && (resultadoDado == 6 || resultadoDado == 3)) {
                 sacarFichaCasa(fichaSeleccionada);
             }
         }
